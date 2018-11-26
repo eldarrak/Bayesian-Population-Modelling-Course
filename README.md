@@ -24,3 +24,5 @@ You can also source some useful functions we will be useing throughout the cours
 ```{r}
 source('https://git.io/fpufJ')
 ```
+
+1. GLM in R and JAGS [link to the script](https://github.com/eldarrak/Bayesian-Population-Modelling-Course/blob/master/1-GLMS.R)
