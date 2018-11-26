@@ -20,3 +20,7 @@ install.packages ('R2WinBUGS')
 install.packages('rjags')
 install.packages ('R2jags')
 ```
+You can also source some useful functions we will be useing throughout the course
+```{r}
+source('https://git.io/fpufJ')
+```
