@@ -1,6 +1,6 @@
 ############
 # useful functions for CR population analysis from Shaub & Kery book
-
+withAutoprint({
 cat('initializing functions...') 
 
 # Define function to simulate a capture-history (CH) matrix
@@ -58,4 +58,5 @@ cjs.init.z <- function(ch,f){
 inv.logit<-function(x) plogis(x)
 logit<-function(x) qlogis(x)
 
-cat('\rfunctions initialized\n')
+cat('you are all set \n')
+}, echo=FALSE)
