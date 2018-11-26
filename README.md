@@ -1,5 +1,5 @@
 # Bayesian Population Modelling Course
-This folder contains scripts and data for my part of the Advanced Population and Community Ecology masters Course at RUG.
+This folder contains scripts and data for my part of the Advanced Population and Community Ecology masters course at the University og Groningen.
 
 **Recommended reading:**
 Kéry, Marc, and Michael Schaub. Bayesian population analysis using WinBUGS: a hierarchical perspective. Academic Press, 2011. [_eBook available to RuG students_](http://search.ebscohost.com.proxy-ub.rug.nl/login.aspx?direct=true&db=nlebk&AN=407875&site=ehost-live&scope=site&ebv=EB&ppid=pp_iii)
