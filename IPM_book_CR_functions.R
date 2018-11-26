@@ -1,6 +1,7 @@
 ############
 # useful functions for CR population analysis from Shaub & Kery book
 
+cat('initializing functions...') 
 
 # Define function to simulate a capture-history (CH) matrix
 simul.cjs <- function(PHI, P, marked){
@@ -52,3 +53,9 @@ cjs.init.z <- function(ch,f){
    }
    return(ch)
 }
+
+
+inv.logit<-function(x) plogis(x)
+logit<-function(x) qlogis(x)
+
+cat('\rfunctions initialized\n')
