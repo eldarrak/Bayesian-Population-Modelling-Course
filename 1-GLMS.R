@@ -186,6 +186,62 @@ return(list(nyears = nyears, alpha = alpha, beta1 = beta1, beta2 = beta2, year =
 
 data<-data.fn()
 
+# JAGS model
+sink("GLM binomial.jags")
+cat("
+model {
+ # Priors
+ alpha ~ dnorm(0, 0.001)
+ beta1 ~ dnorm(0, 0.001)
+ beta2 ~ dnorm(0, 0.001)
+ 
+# Likelihood
+for (i in 1:nyears) {
+   C[i]~dbin(p[i], N[i]) # random part
+   
+   logit(p[i])<- alpha + beta1*year[i] + beta2*pow(year[i],2) # link function and linear predictor
+   }
+}
+", fill=TRUE)
+sink()
+
+# Bundle data
+jags.data <- list(C = data$C, N = data$N, nyears = length(data$C), year = data$YR)
+
+# Initial values
+inits <- function() list(alpha = runif(1, -1, 1), beta1 = runif(1, -1, 1), beta2 = runif(1, -1, 1))
+
+# Parameters to monitor
+params<-c("alpha", "beta1", "beta2", "p")
+
+#MCMC settings            
+ 
+ni<-2000
+nt=10
+nb=80
+nc=3
+
+library(R2jags)
+out<-jags(data=jags.data,
+          model.file = "GLM binomial.jags", 
+          inits=inits, 
+          parameters.to.save=params,
+          n.chains=nc, n.thin=nt,
+          n.burnin=nb, n.iter=ni)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
