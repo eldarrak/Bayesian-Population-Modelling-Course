@@ -229,6 +229,10 @@ out<-jags(data=jags.data,
           n.chains=nc, n.thin=nt,
           n.burnin=nb, n.iter=ni)
 
+out
+
+plot(data$year, data$C/data$N, type = "b", lwd = 2, col = "black", main = "", las = 1, ylab = "Proportion successful pairs", xlab = "Year", ylim = c(0, 1))
+points(data$year, data$exp.p, type = "l", lwd = 3, col = "red")
 
 
 
