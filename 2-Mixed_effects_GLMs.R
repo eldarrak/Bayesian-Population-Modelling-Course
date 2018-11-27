@@ -93,13 +93,3 @@ out <- jags(jags.data, inits, params, "GLMM_Poisson.jags", n.chains = nc, n.thin
 
 download.file('https://git.io/fpzFK', destfile='Poisson_GLMM_out.RData', mode='wb')
 load('Poisson_GLMM_out.RData')
-
-
-
-
-
-
-
-
-
-
