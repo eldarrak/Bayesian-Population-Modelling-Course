@@ -113,7 +113,7 @@ traceplot(out)
 
 
 # Call JAGS from R (BRT < 1 min)
-tmp <- jags(data = win.data, inits = inits, parameters.to.save = params, model.file = "GLM_Poisson.jags", n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, working.directory = getwd())
+tmp <- jags(data = jags.data, inits = inits, parameters.to.save = params, model.file = "GLM_Poisson.jags", n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, working.directory = getwd())
 
 plot(1:40, data$C, type = "b", lwd = 2, col = "black", main = "", las = 1, ylab = "Population size", xlab = "Year")
 R.predictions <- predict(glm(C ~ years + I(years^2) + I(years^3), family = poisson, data = data), type = "response")
