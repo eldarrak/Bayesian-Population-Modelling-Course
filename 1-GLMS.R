@@ -76,13 +76,8 @@ sink()
 
 # Bundle data
 mean.year <- mean(data$years)             # Mean of year covariate
-sd.year <- sd(data$year)                 # SD of year covariate
+sd.year <- sd(data$years)                 # SD of year covariate
 jags.data <- list(C = data$C, n = length(data$C), years = (data$years - mean.year) / sd.year)
-
-# Call JAGS from R (BRT < 1 min)
-         
-
-         
 
    
 # Initial values   
