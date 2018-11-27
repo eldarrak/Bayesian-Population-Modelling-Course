@@ -83,9 +83,9 @@ inits <- function() list(mu = runif(1, 0, 2), alpha = runif(data$nsite, -1, 1), 
 params <- c("mu", "alpha", "beta", "sd.alpha", "sd.year")
 
 # MCMC settings (may have to adapt)
-ni <- 20000
+ni <- 200000
 nt <- 10
-nb <- 5000
+nb <- 50000
 nc <- 3
 
 # Call JAGS from R (BRT ~5 min)
