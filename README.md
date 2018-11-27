@@ -26,3 +26,4 @@ source('https://git.io/fpufJ')
 ```
 
 1. GLM in R and JAGS [link to the script](https://github.com/eldarrak/Bayesian-Population-Modelling-Course/blob/master/1-GLMS.R)
+2. Mixed effects models in JAGS [link to the script](https://github.com/eldarrak/Bayesian-Population-Modelling-Course/blob/master/2-Mixed_effects_GLMs.R)
