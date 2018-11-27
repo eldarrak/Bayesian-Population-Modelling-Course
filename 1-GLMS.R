@@ -52,38 +52,47 @@ summary(GLM1)
             
 # Specify model in JAGS language
 getwd()
+# Specify model in BUGS language
 sink("GLM_Poisson.jags")
 cat("
 model {
+
 # Priors
 alpha ~ dunif(-20, 20)
 beta1 ~ dunif(-10, 10)
 beta2 ~ dunif(-10, 10)
 beta3 ~ dunif(-10, 10)
-# Likelihood
-for (i in 1:n) {
-    C[i]~ dpois(lambda[i]) # random part
-    log(lambda[i])= log.lambda[i] # link function
-    log.lambda[i] = alpha + 
-               beta1*years[i]+ 
-            beta2*pow(years[i],2)+
-            beta3*pow(years[i],3) # linear predictor 
 
+# Likelihood: Note key components of a GLM on one line each
+for (i in 1:n){
+   C[i] ~ dpois(lambda[i])          # 1. Distribution for random part
+   log(lambda[i]) <- log.lambda[i]  # 2. Link function
+   log.lambda[i] <- alpha + beta1 * years[i] + beta2 * pow(years[i],2) + beta3 * pow(years[i],3)                      # 3. Linear predictor
+   } #i
 }
-}", fill=TRUE)
+",fill = TRUE)
 sink()
-            
+
+
 # Bundle data
-jags.data <- list(C = data$C, n = length(data$C), year = data$years)
+mean.year <- mean(data$years)             # Mean of year covariate
+sd.year <- sd(data$year)                 # SD of year covariate
+jags.data <- list(C = data$C, n = length(data$C), years = (data$years - mean.year) / sd.year)
+
+# Call JAGS from R (BRT < 1 min)
+         
+
+         
+
    
 # Initial values   
 inits<-function() {
       list(
       alpha = runif(1, -2, 2), 
-      beta1 = runif(1,-2,2),
-      beta2 = runif(1, -2,2),
-      beta3 = runif(1, -2,2)
-})
+      beta1 = runif(1,-1,1),
+      beta2 = runif(1, -1,1),
+      beta3 = runif(1, -1,1)
+)}
       
 # Parameters to monitor      
 params<-c('alpha', 'beta1', 'beta2', 'beta3')
