@@ -122,6 +122,84 @@ JAGS.predictions <- out$BUGSoutput$mean$lambda
 lines(1:40, JAGS.predictions, type = "l", lwd = 3, col = "blue", lty = 2)
 cbind(R.predictions, JAGS.predictions)
 
+#####################################################
+# 
+peregrine <- read.table("falcons.txt", header = TRUE)
+
+attach(peregrine)
+
+plot(Year, Pairs, type = "b", lwd = 2, main = "", las = 1, ylab = "Pair count", xlab = "Year", ylim = c(0, 200), pch = 16)
+
+# Bundle data
+mean.year <- mean(1:length(Year))        # Mean of year covariate
+sd.year <- sd(1:length(Year))            # SD of year covariate
+
+jags.data<-list(C=Pairs, n=length(Pairs), years=(1:length(Year)-mean.year)/sd.year)
+
+ 
+# Initial values   
+inits<-function() {
+      list(
+      alpha = runif(1, -2, 2), 
+      beta1 = runif(1,-1,1),
+      beta2 = runif(1, -1,1),
+      beta3 = runif(1, -1,1)
+)}
+      
+# Parameters to monitor      
+params<-c('alpha', 'beta1', 'beta2', 'beta3', 'lambda')
+      
+#MCMC settings            
+ 
+ni<-2000
+nt=10
+nb=80
+nc=3
+
+library(R2jags)
+out_falcons<-jags(data=jags.data,
+          model.file = "GLM_Poisson.jags", 
+          inits=inits, 
+          parameters.to.save=params,
+          n.chains=nc, n.thin=nt,
+          n.burnin=nb, n.iter=ni)
+
+#####################################################
+##################################################
+#  Binomial GLM
+# 
+data.fn<-function(nyears=40, alpha=0, beta1=-0.1, beta2=-0.9) {
+
+years=1:nyears
+
+Yr<-(years-mean(years))/sd(years)
+
+N<-round(runif(nyears, min=20, max=100))
+
+exp.p<-plogis(alpha + 
+              beta1*Yr +
+              beta2*Yr^2)
+C<-rbinom(n=nyears, size=N, prob=exp.p)
+
+return(list(nyears = nyears, alpha = alpha, beta1 = beta1, beta2 = beta2, year = years, YR = Yr, exp.p = exp.p, C = C, N = N))
+}
+
+data<-data.fn()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+}
 
 
 
