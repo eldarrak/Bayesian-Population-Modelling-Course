@@ -39,15 +39,24 @@ return(list(n=n, alpha=alpha, beta1=beta1, beta2=beta2, beta3=beta3, years=years
 }
 
                   
+data<-data.fn()
 
+data
 
+plot(data$C~data$years)
 
-}
-
-
-
-
-
+GLM1<-glm(C~ years + 
+            I(years^2)+
+            I(years^3) , data= data, family=poisson)
+summary(GLM1)            
+            
+            
+            
+            
+            
+            
+            
+            
 
 
 
