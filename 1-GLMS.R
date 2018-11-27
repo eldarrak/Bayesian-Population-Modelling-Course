@@ -50,6 +50,28 @@ GLM1<-glm(C~ years +
             I(years^3) , data= data, family=poisson)
 summary(GLM1)            
             
+# Specify model in JAGS language
+getwd()
+sink("GLM_Poisson.jags")
+cat("
+model {
+# Priors
+alpha ~ dunif(-20, 20)
+beta1 ~ dunif(-10, 10)
+beta2 ~ dunif(-10, 10)
+beta3 ~ dunif(-10, 10)
+# Likelihood
+for (i in 1:n) {
+    C[i]~ dpois(lambda[i]) # random part
+    log(lambda[i])= log.lambda[i] # link function
+    log.lambda[i] = alpha + 
+               beta1*years[i]+ 
+            beta2*pow(years[i],2)+
+            beta3*pow(years[i],3) # linear predictor 
+
+}
+}", fill=TRUE)
+sink()
             
             
             
