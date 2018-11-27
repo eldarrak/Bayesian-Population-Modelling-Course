@@ -240,30 +240,3 @@ lines(data$year, out$BUGSoutput$mean$p, type = "l", lwd = 3, col = "blue")
 traceplot(out)
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-}
-
-
-
-
-
