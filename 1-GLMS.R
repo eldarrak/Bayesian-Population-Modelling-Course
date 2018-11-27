@@ -73,11 +73,37 @@ for (i in 1:n) {
 }", fill=TRUE)
 sink()
             
-            
-            
-            
-            
-            
+# Bundle data
+jags.data <- list(C = data$C, n = length(data$C), year = data$years)
+   
+# Initial values   
+inits<-function() {
+      list(
+      alpha = runif(1, -2, 2), 
+      beta1 = runif(1,-2,2),
+      beta2 = runif(1, -2,2),
+      beta3 = runif(1, -2,2)
+})
+      
+# Parameters to monitor      
+params<-c('alpha', 'beta1', 'beta2', 'beta3')
+      
+#MCMC settings            
+ 
+ni<-200
+nt=2
+nb=1
+nc=3
+
+library(R2jags)
+out<-jags(data=jags.data,
+          model.file = "GLM_Poisson.jags", 
+          inits=inits, 
+          parameters.to.save=params,
+          n.chains=nc, n.thin=nt,
+          n.burnin=nb, n.iter=ni)
+
+ 
             
 
 
