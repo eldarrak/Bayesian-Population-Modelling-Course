@@ -216,9 +216,9 @@ params<-c("alpha", "beta1", "beta2", "p")
 
 #MCMC settings            
  
-ni<-2000
+ni<-5000
 nt=10
-nb=80
+nb=2500
 nc=3
 
 library(R2jags)
@@ -234,8 +234,10 @@ out
 plot(data$year, data$C/data$N, type = "b", lwd = 2, col = "black", main = "", las = 1, ylab = "Proportion successful pairs", xlab = "Year", ylim = c(0, 1))
 points(data$year, data$exp.p, type = "l", lwd = 3, col = "red")
 
+lines(data$year, out$BUGSoutput$mean$p, type = "l", lwd = 3, col = "blue")
 
 
+traceplot(out)
 
 
 
