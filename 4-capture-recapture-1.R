@@ -203,7 +203,7 @@ for (i in 1:nind){
    } #i
 }
 ", fill=TRUE)
-
+sink()
 
 ##########################################
 # better estimation
