@@ -480,14 +480,97 @@ cjs.group
 n.occasions<-10
 marked.j<-rep(200, n.occasions-1)
 marked.a<-rep(30, n.occasions-1)
-phi.juv<-0.3
+phi.j<-0.3
 phi.ad<-0.7
 p<-rep(0.5, n.occasions-1)
 
 PHI.J<-matrix(0, ncol=n.occasions-1, nrow=sum(marked.j))
 for (i in 1:length(marked.j)){
    PHI.J[(sum(marked.j[1:i])-marked.j[i]+1):sum(marked.j[1:i]),i:(n.occasions-1)] <- matrix(rep(phi.j[1:(n.occasions-i)],marked.j[i]), ncol = n.occasions-i, byrow = TRUE)
+  PHI.J[is.na(PHI.J[,i]),i]<-phi.ad
    }
+   
+P.J <- matrix(rep(p, sum(marked.j)), ncol = n.occasions-1, nrow = sum(marked.j), byrow = TRUE)
+PHI.A <- matrix(rep(phi.a, sum(marked.a)), ncol = n.occasions-1, nrow = sum(marked.a), byrow = TRUE)
+P.A <- matrix(rep(p, sum(marked.a)), ncol = n.occasions-1, nrow = sum(marked.a), byrow = TRUE)
+
+# Apply simulation function
+CH.J <- simul.cjs(PHI.J, P.J, marked.j)
+CH.A <- simul.cjs(PHI.A, P.A, marked.a) 
+
+# Create vector with occasion of marking
+get.first <- function(x) min(which(x!=0))
+f.j <- apply(CH.J, 1, get.first)
+f.a <- apply(CH.A, 1, get.first)
+
+# Create matrices X indicating age classes
+x.j <- matrix(NA, ncol = dim(CH.J)[2]-1, nrow = dim(CH.J)[1])
+x.a <- matrix(NA, ncol = dim(CH.A)[2]-1, nrow = dim(CH.A)[1])
+for (i in 1:dim(CH.J)[1]){
+   for (t in f.j[i]:(dim(CH.J)[2]-1)){
+      x.j[i,t] <- 2
+      x.j[i,f.j[i]] <- 1   
+      } #t
+   } #i
+for (i in 1:dim(CH.A)[1]){
+   for (t in f.a[i]:(dim(CH.A)[2]-1)){
+      x.a[i,t] <- 2
+      } #t
+   } #i
+
+CH <- rbind(CH.J, CH.A)
+f <- c(f.j, f.a)
+x <- rbind(x.j, x.a)
+
+# Specify model in BUGS language
+sink("cjs-age.jags")
+cat("
+model {
+# Priors and constraints
+for (i in 1:nind){
+   for (t in f[i]:(n.occasions-1)){
+      phi[i,t] <- beta[x[i,t]]
+      p[i,t] <- mean.p
+      } #t
+   } #i
+for (u in 1:2){
+   beta[u] ~ dunif(0, 1)              # Priors for age-specific survival
+   }
+mean.p ~ dunif(0, 1)                  # Prior for mean recapture
+# Likelihood 
+for (i in 1:nind){
+   # Define latent state at first capture
+   z[i,f[i]] <- 1
+   for (t in (f[i]+1):n.occasions){
+      # State process
+      z[i,t] ~ dbern(mu1[i,t])
+      mu1[i,t] <- phi[i,t-1] * z[i,t-1]
+      # Observation process
+      y[i,t] ~ dbern(mu2[i,t])
+      mu2[i,t] <- p[i,t-1] * z[i,t]
+      } #t
+   } #i
+}
+",fill = TRUE)
+sink()
+
+# Bundle data
+jags.data <- list(y = CH, f = f, nind = dim(CH)[1], n.occasions = dim(CH)[2], z = known.state.cjs(CH), x = x)
+
+# Initial values
+inits <- function(){list(z = cjs.init.z(CH, f), beta = runif(2, 0, 1), mean.p = runif(1, 0, 1))}  
+
+# Parameters monitored
+parameters <- c("beta", "mean.p")
+
+# MCMC settings
+ni <- 2000
+nt <- 3
+nb <- 1000
+nc <- 3
+
+# Call JAGS from R (BRT 3 min)
+cjs.age <- jags(jags.data, inits, parameters, "cjs-age.jags", n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, working.directory = getwd())
 
 
 
