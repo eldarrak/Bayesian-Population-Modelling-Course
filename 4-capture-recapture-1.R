@@ -346,6 +346,16 @@ p.f <- rep(0.7, n.occasions-1)     # Recapture of females
 phi.m <- rep(0.87, n.occasions-1)   # Survival of males
 p.m <- rep(0.7, n.occasions-1)     # Reacpture of males
 
+# Define matrices with survival and recapture probabilities
+PHI.m <- matrix(phi.m, ncol = n.occasions-1, nrow = sum(marked))
+PHI.f<- matrix(phi.f, ncol = n.occasions-1, nrow = sum(marked))
+P.m <- matrix(p.m, ncol = n.occasions-1, nrow = sum(marked))
+P.f <- matrix(p.f, ncol = n.occasions-1, nrow = sum(marked))
+
+# Simulate capture-histories
+CH.m <- simul.cjs(PHI.m, P.m, marked)
+CH.f <- simul.cjs(PHI.f, P.f, marked)
+
 
 
 
