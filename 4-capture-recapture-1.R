@@ -102,3 +102,41 @@ cjs.c.c <- jags(jags.data, inits, parameters, "cjs-c-c.jags", n.chains = nc, n.t
 # Summarize posteriors
 print(cjs.c.c, digits = 3)
 
+##########################################
+# better estimation
+jags.data<-list(y=CH, f=f, nind = dim(CH)[1], n.occasions=dim(CH)[2], z=known.state.cjs(CH))
+
+
+# Function to create a matrix of initial values for latent state z
+cjs.init.z <- function(ch,f){
+   for (i in 1:dim(ch)[1]){
+      if (sum(ch[i,])==1) next
+      n2 <- max(which(ch[i,]==1))
+      ch[i,f[i]:n2] <- NA
+      }
+   for (i in 1:dim(ch)[1]){
+   ch[i,1:f[i]] <- NA
+   }
+   return(ch)
+   }
+
+# Initial values
+inits <- function(){list(z = cjs.init.z(CH, f), mean.phi = runif(1, 0, 1), mean.p = runif(1, 0, 1))}  
+
+# Parameters monitored
+parameters <- c("mean.phi", "mean.p")
+
+# MCMC settings
+ni <- 10000
+nt <- 6
+nb <- 5000
+nc <- 3
+
+# Call JAGS from R (BRT <1 min)
+cjs.c.c <- jags(jags.data, inits, parameters, "cjs-c-c.jags", n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, working.directory = getwd())
+
+# Summarize posteriors
+print(cjs.c.c, digits = 3)
+
+
+
