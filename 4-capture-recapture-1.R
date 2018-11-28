@@ -139,4 +139,87 @@ cjs.c.c <- jags(jags.data, inits, parameters, "cjs-c-c.jags", n.chains = nc, n.t
 print(cjs.c.c, digits = 3)
 
 
+#########################################################
+############ random effects models
+
+
+
+#Define parameters
+n.occasions<-6
+marked<-rep(30, n.occasions-1) # Annual number of marked individuals
+mean.phi<-0.88
+var.phi<-1
+p<-rep(0.75, n.occasions-1)
+
+logit.phi<-rnorm(n.occasions-1, logit(mean.phi), var.phi^2)
+phi<-inv.logit(logit.phi)
+phi
+# Define matrices with survival and recapture probabilities
+PHI <- matrix(phi, ncol = n.occasions-1, nrow = sum(marked))
+P <- matrix(p, ncol = n.occasions-1, nrow = sum(marked))
+
+# Simulate capture-histories
+CH <- simul.cjs(PHI, P, marked)
+
+# Create vector with occasion of marking
+get.first <- function(x) min(which(x!=0))
+f <- apply(CH, 1, get.first)
+
+# Specify model in BUGS language
+sink("cjs-temp-raneff.jags")
+cat("
+model {
+# priors
+for (i in 1:nind) {
+  for (t in f[i]:(n.occasions-1)) {
+  logit(phi[i,t])<- mu + epsilon[t]
+  p[i,t]<-mean.p
+  } #t
+} #i
+ for (t in 1:(n.occasions-1)){
+    epsilon[t] ~ dnorm(0, tau)
+  }  
+
+mean.phi ~ dunif(0,1)
+mean.p ~ dunif(0,1)
+mu <- log(mean.phi/(1-mean.phi)) # logit transform
+sigma ~ dunif(0,1)
+tau <- pow(sigma, -2)
+sigma2<-pow(sigma,1)
+
+
+# Likelihood 
+for (i in 1:nind){
+   # Define latent state at first capture
+   z[i,f[i]] <- 1
+   for (t in (f[i]+1):n.occasions){
+      # State process
+      z[i,t] ~ dbern(mu1[i,t])
+      mu1[i,t] <- phi[i,t-1] * z[i,t-1]
+      # Observation process
+      y[i,t] ~ dbern(mu2[i,t])
+      mu2[i,t] <- p[i,t-1] * z[i,t]
+      } #t
+   } #i
+}
+", fill=TRUE)
+
+
+##########################################
+# better estimation
+jags.data<-list(y=CH, f=f, nind = dim(CH)[1], n.occasions=dim(CH)[2], z=known.state.cjs(CH))
+
+# Initial values
+inits <- function(){list(z = cjs.init.z(CH, f), mean.phi = runif(1, 0, 1), mean.p = runif(1, 0, 1))}  
+# Parameters monitored
+parameters <- c("mean.phi", "mean.p", 'sigma2')
+
+# MCMC settings
+ni <- 5000
+nt <- 6
+nb <- 4000
+nc <- 7
+
+# Call JAGS from R (BRT <1 min)
+cjs.c.c <- jags.parallel(jags.data, inits, parameters, "cjs-temp-raneff.jags", n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, working.directory = getwd(), export_obj_names=c('cjs.init.z', 'nb', 'ni', 'nt', 'CH'))
 
