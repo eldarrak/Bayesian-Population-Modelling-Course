@@ -223,3 +223,9 @@ nc <- 7
 # Call JAGS from R (BRT <1 min)
 cjs.c.c <- jags.parallel(jags.data, inits, parameters, "cjs-temp-raneff.jags", n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, working.directory = getwd(), export_obj_names=c('cjs.init.z', 'nb', 'ni', 'nt', 'CH'))
 
+download.file('https://git.io/fp2ER', destfile='cjs-temp-raneff_cjs.ran.RData', mode='wb')
+load('cjs-temp-raneff_cjs.ran.RData')
+
+
+
+
