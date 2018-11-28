@@ -491,7 +491,7 @@ for (i in 1:length(marked.j)){
    }
    
 P.J <- matrix(rep(p, sum(marked.j)), ncol = n.occasions-1, nrow = sum(marked.j), byrow = TRUE)
-PHI.A <- matrix(rep(phi.a, sum(marked.a)), ncol = n.occasions-1, nrow = sum(marked.a), byrow = TRUE)
+PHI.A <- matrix(rep(phi.ad, sum(marked.a)), ncol = n.occasions-1, nrow = sum(marked.a), byrow = TRUE)
 P.A <- matrix(rep(p, sum(marked.a)), ncol = n.occasions-1, nrow = sum(marked.a), byrow = TRUE)
 
 # Apply simulation function
