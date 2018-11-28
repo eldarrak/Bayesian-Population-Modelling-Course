@@ -43,7 +43,7 @@ cat("
 model {
 # priors
 for (i in 1:nind) {
-  for (t in f[i]:n.occasions-1) {
+  for (t in (f[i]:n.occasions-1)) {
   phi[i,t]<-mean.phi
   p[i,t]<-mean.p
   } #t
