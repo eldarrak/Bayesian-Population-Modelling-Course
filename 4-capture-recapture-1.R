@@ -374,6 +374,11 @@ for (i in 1:nind) {
   } #t
 } #i
 
+for(u in 1:g) {
+ phi.g[u] ~ dunif(0,1)
+ p.g[u] ~ dunif(0,1)
+}
+
 # Likelihood
 for (i in 1:nind) {
   #define the latent state 
@@ -390,6 +395,28 @@ for (i in 1:nind) {
 }
 ", fill=TRUE)
 sink()
+
+# Bundle data
+jags.data <- list(y = CH, f = f, nind = dim(CH)[1], n.occasions = dim(CH)[2], z = known.state.cjs(CH), g = length(unique(group)), group = group)
+
+# Initial values
+inits <- function(){list(z = cjs.init.z(CH, f), phi.g = runif(length(unique(group)), 0, 1), p.g = runif(length(unique(group)), 0, 1))}  
+
+# Parameters monitored
+parameters <- c("phi.g", "p.g")
+
+# MCMC settings
+ni <- 5000
+nt <- 3
+nb <- 2000
+nc <- 3
+
+# Call JAGS from R (BRT 2 min)
+cjs.group <- jags(jags.data, inits, parameters, "cjs-group.jags", n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb)
+
+cjs.group
+
+
 
 
 
