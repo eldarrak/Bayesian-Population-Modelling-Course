@@ -86,3 +86,19 @@ known.state.cjs <- function(ch){
 inits<-function() {list(mean.phi=runif(1, 0,1), mean.p=runif(1, 0,1), z=   known.state.cjs(CH)
 )}
 
+
+# Parameters monitored
+parameters <- c("mean.phi", "mean.p")
+
+# MCMC settings
+ni <- 10000
+nt <- 6
+nb <- 5000
+nc <- 3
+
+# Call JAGS from R (BRT 1 min)
+cjs.c.c <- jags(jags.data, inits, parameters, "cjs-c-c.jags", n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, working.directory = getwd())
+
+# Summarize posteriors
+print(cjs.c.c, digits = 3)
+
