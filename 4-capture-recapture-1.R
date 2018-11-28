@@ -356,6 +356,45 @@ P.f <- matrix(p.f, ncol = n.occasions-1, nrow = sum(marked))
 CH.m <- simul.cjs(PHI.m, P.m, marked)
 CH.f <- simul.cjs(PHI.f, P.f, marked)
 
+# Merge capture-histories by row
+CH <- rbind(CH.f, CH.m)
+
+group<-c(rep(1, dim(CH.f)[1]), rep(2, dim(CH.m)[1]))
+
+f <- apply(CH, 1, get.first)
+
+sink('cjs-group.jags')
+cat("
+model {
+# priors
+for (i in 1:nind) {
+  for (t in f[i]:(n.occasions-1)) {
+  phi[i,t]<-phi.g[group[i]]
+  p[i,t]<-p.g[group[i]]
+  } #t
+} #i
+
+# Likelihood
+for (i in 1:nind) {
+  #define the latent state 
+  z[i,f[i]]<-1
+  for (t in (f[i]+1):n.occasions) {
+    # State process
+    z[i,t] ~ dbern(mu1[i,t])
+    mu1[i,t]<-phi[i, t-1]*z[i, t-1]
+    # Observation process
+    y[i,t] ~ dbern(mu2[i,t])
+    mu2[i,t] <-p[i, t-1]*z[i,t]
+    } #t 
+} #i
+}
+", fill=TRUE)
+sink()
+
+
+
+
+
 
 
 
