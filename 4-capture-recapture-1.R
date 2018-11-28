@@ -142,8 +142,6 @@ print(cjs.c.c, digits = 3)
 #########################################################
 ############ random effects models
 
-
-
 #Define parameters
 n.occasions<-6
 marked<-rep(30, n.occasions-1) # Annual number of marked individuals
@@ -183,9 +181,9 @@ for (i in 1:nind) {
 mean.phi ~ dunif(0,1)
 mean.p ~ dunif(0,1)
 mu <- log(mean.phi/(1-mean.phi)) # logit transform
-sigma ~ dunif(0,1)
+sigma ~ dunif(0,3)
 tau <- pow(sigma, -2)
-sigma2<-pow(sigma,1)
+sigma2<-pow(sigma,2)
 
 
 # Likelihood 
@@ -225,7 +223,107 @@ cjs.c.c <- jags.parallel(jags.data, inits, parameters, "cjs-temp-raneff.jags", n
 
 download.file('https://git.io/fp2ER', destfile='cjs-temp-raneff_cjs.ran.RData', mode='wb')
 load('cjs-temp-raneff_cjs.ran.RData')
+cjs.c.c <-cjs.ran
+cjs.c.c
+
+################################################
+# covariate and random effects
+
+#Define parameters
+n.occasions<-20
+marked<-rep(15, n.occasions-1) # Annual number of marked individuals
+mean.phi<-0.88
+r.var<-0.2
+beta <- -0.3                       # Slope of survival-winter relationship	
+p<-rep(0.75, n.occasions-1)
+
+winter <- rnorm(n.occasions-1, 0, 1)
+logit.phi<- logit(mean.phi) + beta*winter + rnorm(n.occasions-1, 0 , r.var^0.5)
+
+phi<-inv.logit(logit.phi)
+phi
+# Define matrices with survival and recapture probabilities
+PHI <- matrix(phi, ncol = n.occasions-1, nrow = sum(marked))
+P <- matrix(p, ncol = n.occasions-1, nrow = sum(marked))
+
+# Simulate capture-histories
+CH <- simul.cjs(PHI, P, marked)
+
+# Create vector with occasion of marking
+get.first <- function(x) min(which(x!=0))
+f <- apply(CH, 1, get.first)
+
+# Specify model in BUGS language
+sink("cjs-cov-raneff.jags")
+cat("
+model {
+# priors
+for (i in 1:nind) {
+  for (t in f[i]:(n.occasions-1)) {
+  logit(phi[i,t])<- mu+ beta*x[t]+ epsilon[t]
+  p[i,t]<-mean.p
+  } #t
+} #i
+ for (t in 1:(n.occasions-1)){
+    epsilon[t] ~ dnorm(0, tau)
+    phi.est[t]<- 1/(1+exp(-mu- beta*x[t]- epsilon[t]))
+  }  
+
+mean.phi ~ dunif(0,1)
+mean.p ~ dunif(0,1)
+mu <- log(mean.phi/(1-mean.phi)) # logit transform
+beta ~ dnorm(0, 0.001)I(-10,10)
+sigma ~ dunif(0,5)
+tau <- pow(sigma, -2)
+sigma2<-pow(sigma,2)
 
 
+# Likelihood 
+for (i in 1:nind){
+   # Define latent state at first capture
+   z[i,f[i]] <- 1
+   for (t in (f[i]+1):n.occasions){
+      # State process
+      z[i,t] ~ dbern(mu1[i,t])
+      mu1[i,t] <- phi[i,t-1] * z[i,t-1]
+      # Observation process
+      y[i,t] ~ dbern(mu2[i,t])
+      mu2[i,t] <- p[i,t-1] * z[i,t]
+      } #t
+   } #i
 
+}
+", fill=TRUE)
+sink()
+
+##########################################
+# better estimation
+jags.data<-list(y=CH, f=f, nind = dim(CH)[1], n.occasions=dim(CH)[2], z=known.state.cjs(CH), x=winter)
+
+# Initial values
+inits <- function(){list(z = cjs.init.z(CH, f), mean.phi = runif(1, 0, 1), mean.p = runif(1, 0, 1), sigma=runif(1, 0, 5), beta=runif(1, -5,5))}  
+# Parameters monitored
+
+parameters <- c("mean.phi", "mean.p", 'sigma2', 'beta', 'phi.est')
+
+# MCMC settings
+ni <- 1000
+nt <- 6
+nb <- 10000
+nc <- 3
+
+# Call JAGS from R (BRT 12 min)
+cjs.cov <- jags(jags.data, inits, parameters, "cjs-cov-raneff.jags", n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, working.directory = getwd())
+
+
+ni <- 12000
+nt <- 6
+nb <- 8000
+nc <- 7
+
+# Call JAGS from R (BRT 7 min)
+cjs.cov <- jags.parallel(jags.data, inits, parameters, "cjs-cov-raneff.jags", n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb, working.directory = getwd(), , export_obj_names=c('cjs.init.z', 'nb', 'ni', 'nt', 'CH'))
+
+download.file('https://git.io/fp2E2', destfile='cjs-cov-raneff_cjs.cov.RData', mode='wb')
+load('cjs-cov-raneff_cjs.cov.RData')
 
