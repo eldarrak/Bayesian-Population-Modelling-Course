@@ -327,3 +327,26 @@ cjs.cov <- jags.parallel(jags.data, inits, parameters, "cjs-cov-raneff.jags", n.
 download.file('https://git.io/fp2E2', destfile='cjs-cov-raneff_cjs.cov.RData', mode='wb')
 load('cjs-cov-raneff_cjs.cov.RData')
 
+
+plot(cjs.cov$BUGSoutput$mean$phi.est, ylim=c(0,1), pch=19)
+points(phi, col='red', pch=19)
+
+
+
+###############################################
+#  sex specific survival
+
+# Models with individual variation
+# Fixed group effects - sex specific survival
+# Define parameter values
+n.occasions <- 12                  # Number of capture occasions
+marked <- rep(30, n.occasions-1)   # Annual number of newly marked individuals
+phi.f <- rep(0.92, n.occasions-1)  # Survival of females
+p.f <- rep(0.7, n.occasions-1)     # Recapture of females
+phi.m <- rep(0.87, n.occasions-1)   # Survival of males
+p.m <- rep(0.7, n.occasions-1)     # Reacpture of males
+
+
+
+
+
