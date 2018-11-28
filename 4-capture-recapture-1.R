@@ -475,6 +475,25 @@ cjs.group <- jags(jags.data, inits, parameters, "cjs-group-difference.jags", n.c
 
 cjs.group
 
+####################################################
+# age effects ibn survival
+n.occasions<-10
+marked.j<-rep(200, n.occasions-1)
+marked.a<-rep(30, n.occasions-1)
+phi.juv<-0.3
+phi.ad<-0.7
+p<-rep(0.5, n.occasions-1)
+
+PHI.J<-matrix(0, ncol=n.occasions-1, nrow=sum(marked.j))
+for (i in 1:length(marked.j)){
+   PHI.J[(sum(marked.j[1:i])-marked.j[i]+1):sum(marked.j[1:i]),i:(n.occasions-1)] <- matrix(rep(phi.j[1:(n.occasions-i)],marked.j[i]), ncol = n.occasions-i, byrow = TRUE)
+   }
+
+
+
+
+
+P.J<-matrix(0, ncol=n.occasions-1, nrow=sum(marked.j))
 
 
 
