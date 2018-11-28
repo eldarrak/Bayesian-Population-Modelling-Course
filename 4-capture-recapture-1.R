@@ -416,6 +416,67 @@ cjs.group <- jags(jags.data, inits, parameters, "cjs-group.jags", n.chains = nc,
 
 cjs.group
 
+#################################################### group difference
+
+group<-c(rep(0, dim(CH.f)[1]), rep(1, dim(CH.m)[1]))
+
+f <- apply(CH, 1, get.first)
+
+sink('cjs-group-difference.jags')
+cat("
+model {
+# priors
+for (i in 1:nind) {
+  for (t in f[i]:(n.occasions-1)) {
+  logit(phi[i,t])<-phi.g+phi.male.difference*group[i]
+  logit(p[i,t])<-p.g+p.male.difference*group[i]
+  } #t
+} #i
+
+phi.g~dunif(-5,5)
+p.g~dunif(-5,5)
+phi.male.difference ~ dunif(-1,1)
+p.male.difference ~ dunif(-1,1)
+
+# Likelihood
+for (i in 1:nind) {
+  #define the latent state 
+  z[i,f[i]]<-1
+  for (t in (f[i]+1):n.occasions) {
+    # State process
+    z[i,t] ~ dbern(mu1[i,t])
+    mu1[i,t]<-phi[i, t-1]*z[i, t-1]
+    # Observation process
+    y[i,t] ~ dbern(mu2[i,t])
+    mu2[i,t] <-p[i, t-1]*z[i,t]
+    } #t 
+} #i
+}
+", fill=TRUE)
+sink()
+
+# Bundle data
+jags.data <- list(y = CH, f = f, nind = dim(CH)[1], n.occasions = dim(CH)[2], z = known.state.cjs(CH),  group = group)
+
+# Initial values
+inits <- function(){list(z = cjs.init.z(CH, f), phi.g = runif(1, -3, 3), p.g =  runif(1, -3, 3), phi.male.difference=runif(1, -1,1), p.male.difference=runif(1, -1,1))}  
+
+# Parameters monitored
+parameters <- c("phi.g", "p.g", "phi.male.difference", "p.male.difference")
+
+# MCMC settings
+ni <- 5000
+nt <- 3
+nb <- 2000
+nc <- 3
+
+# Call JAGS from R (BRT 2 min)
+cjs.group <- jags(jags.data, inits, parameters, "cjs-group-difference.jags", n.chains = nc, n.thin = nt, n.iter = ni, n.burnin = nb)
+
+cjs.group
+
+
+
 
 
 
