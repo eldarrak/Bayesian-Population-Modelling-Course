@@ -31,3 +31,10 @@ source('https://git.io/fpufJ')
 4. Capture-recapture models 1 [link to the script](https://github.com/eldarrak/Bayesian-Population-Modelling-Course/blob/master/4-capture-recapture-1.R)
 5. Real data analyses [link to the script](https://github.com/eldarrak/Bayesian-Population-Modelling-Course/blob/master/real-data_analyses.R)
 
+Note that current course havily relies on the Bayesian population analysis book but does not cover it completely, so please read the book if you want to go further.
+
+Capture-recapture modelling can also be done in the frequentist framwork. The main software for this analysis is [program Mark](http://www.phidot.org/software/mark/) by Gary White. [RMark](https://cran.r-project.org/web/packages/RMark/index.html) R package is an interface to Mark from R written by Jeff Laake. The great explanation of all conemporary CR methods by Evan Cooch is available [here](http://www.phidot.org/software/mark/docs/book/). 
+
+If you run in to problems with capture-recapture methods ask you question [here](http://www.phidot.org/forum/index.php).
+
+
