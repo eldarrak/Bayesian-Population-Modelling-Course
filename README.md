@@ -29,3 +29,5 @@ source('https://git.io/fpufJ')
 2. Mixed effects models in JAGS [link to the script](https://github.com/eldarrak/Bayesian-Population-Modelling-Course/blob/master/2-Mixed_effects_GLMs.R)
 3. State-space models [link to the script](https://github.com/eldarrak/Bayesian-Population-Modelling-Course/blob/master/3-state-space-models.R)
 4. Capture-recapture models 1 [link to the script](https://github.com/eldarrak/Bayesian-Population-Modelling-Course/blob/master/4-capture-recapture-1.R)
+5. Real data analyses [link to the script](https://github.com/eldarrak/Bayesian-Population-Modelling-Course/blob/master/real-data_analyses.R)
+
